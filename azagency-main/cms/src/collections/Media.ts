@@ -1,0 +1,260 @@
+import path from "path";
+import fs from "fs";
+import { v2 as cloudinary } from "cloudinary";
+import type { CollectionConfig } from "payload";
+
+const uploadDir =
+  process.env.NODE_ENV === "production"
+    ? path.join("/tmp", "media")
+    : "media";
+
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
+const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
+const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || "azagency";
+
+const cloudinaryConfigured =
+  Boolean(CLOUDINARY_CLOUD_NAME) &&
+  Boolean(CLOUDINARY_API_KEY) &&
+  Boolean(CLOUDINARY_API_SECRET);
+
+if (cloudinaryConfigured) {
+  cloudinary.config({
+    cloud_name: CLOUDINARY_CLOUD_NAME,
+    api_key: CLOUDINARY_API_KEY,
+    api_secret: CLOUDINARY_API_SECRET,
+    secure: true,
+  });
+}
+
+const isEditorOrAdmin = ({ req }: any) => {
+  const role = req?.user?.role;
+  return role === "admin" || role === "editor";
+};
+
+const asString = (value: unknown) =>
+  typeof value === "string" ? value.trim() : "";
+
+const inferResourceType = (mimeType: string) =>
+  mimeType.startsWith("video/") ? "video" : "image";
+
+const resolveUploadedFilePath = (filename: string): string | null => {
+  if (!filename) return null;
+
+  const candidates = [
+    path.join(uploadDir, filename),
+    path.resolve(process.cwd(), uploadDir, filename),
+    path.resolve(process.cwd(), "media", filename),
+    path.join("/tmp", "media", filename),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+};
+
+const getRequestFile = (req: unknown):
+  | {
+      path?: string;
+      mimetype?: string;
+    }
+  | null => {
+  if (!req || typeof req !== "object") return null;
+  const reqAny = req as { file?: unknown };
+  if (!reqAny.file || typeof reqAny.file !== "object") return null;
+  return reqAny.file as { path?: string; mimetype?: string };
+};
+
+export const Media: CollectionConfig = {
+  slug: "media",
+  access: {
+    read: () => true, 
+    create: isEditorOrAdmin,
+    update: isEditorOrAdmin,
+    delete: isEditorOrAdmin,
+  },
+  upload: {
+    staticDir: uploadDir,
+    imageSizes: [
+      { name: "thumbnail", width: 400, height: 300, position: "centre" },
+      { name: "card", width: 768, height: 512, position: "centre" },
+      { name: "hero", width: 1920, height: 1080, position: "centre" },
+    ],
+    adminThumbnail: "thumbnail",
+    mimeTypes: ["image/*", "video/*"],
+  },
+  fields: [
+    {
+      name: "externalUrl",
+      type: "text",
+      label: "URL du media (optionnel)",
+      admin: {
+        description: "Collez une URL d'image/video si vous ne telechargez pas de fichier.",
+      },
+    },
+    {
+      name: "cloudinaryUrl",
+      type: "text",
+      label: "Cloudinary URL",
+      admin: {
+        readOnly: true,
+        hidden: true,
+      },
+    },
+    {
+      name: "cloudinaryPublicId",
+      type: "text",
+      label: "Cloudinary Public ID",
+      admin: {
+        readOnly: true,
+        hidden: true,
+      },
+    },
+    {
+      name: "alt",
+      type: "text",
+      required: false,
+      label: "Texte alternatif",
+    },
+  ],
+  hooks: {
+    afterRead: [
+      ({ doc }: any) => {
+        const cloudUrl = asString((doc as { cloudinaryUrl?: unknown }).cloudinaryUrl);
+        const externalUrl = asString((doc as { externalUrl?: unknown }).externalUrl);
+
+        if (cloudUrl) {
+          (doc as { url?: string }).url = cloudUrl;
+        } else if (externalUrl) {
+          (doc as { url?: string }).url = externalUrl;
+        }
+
+        return doc;
+      },
+    ],
+    afterChange: [
+      async ({ doc, req, previousDoc }: any) => {
+        if (!cloudinaryConfigured) {
+          return doc;
+        }
+
+        const file = getRequestFile(req);
+        const data = (req as { data?: Record<string, unknown> } | undefined)?.data || {};
+        const externalUrl = asString(data.externalUrl);
+        const previousExternalUrl = asString((previousDoc as { externalUrl?: unknown } | null)?.externalUrl);
+        const filename = asString((doc as { filename?: unknown }).filename);
+        const previousFilename = asString((previousDoc as { filename?: unknown } | null)?.filename);
+        const mimeType = asString((doc as { mimeType?: unknown }).mimeType);
+
+        try {
+          if (file?.path) {
+            const resourceType = inferResourceType(file.mimetype || "image/");
+            const uploadResult = await cloudinary.uploader.upload(file.path, {
+              folder: CLOUDINARY_FOLDER,
+              resource_type: resourceType,
+            });
+
+            await req.payload.update({
+              collection: "media",
+              id: String(doc.id),
+              data: {
+                cloudinaryUrl: uploadResult.secure_url,
+                cloudinaryPublicId: uploadResult.public_id,
+              },
+              req,
+              depth: 0,
+              overrideAccess: true,
+            });
+          } else if (filename && filename !== previousFilename) {
+            const localPath = resolveUploadedFilePath(filename);
+            if (localPath) {
+              const uploadResult = await cloudinary.uploader.upload(localPath, {
+                folder: CLOUDINARY_FOLDER,
+                resource_type: inferResourceType(mimeType || "image/"),
+              });
+
+              await req.payload.update({
+                collection: "media",
+                id: String(doc.id),
+                data: {
+                  cloudinaryUrl: uploadResult.secure_url,
+                  cloudinaryPublicId: uploadResult.public_id,
+                },
+                req,
+                depth: 0,
+                overrideAccess: true,
+              });
+            } else {
+              req.payload.logger.error({
+                msg: "Cloudinary sync skipped: uploaded file path not found",
+                mediaId: doc.id,
+                filename,
+              });
+            }
+          } else if (externalUrl && externalUrl !== previousExternalUrl) {
+            const uploadResult = await cloudinary.uploader.upload(externalUrl, {
+              folder: CLOUDINARY_FOLDER,
+              resource_type: "auto",
+            });
+
+            await req.payload.update({
+              collection: "media",
+              id: String(doc.id),
+              data: {
+                cloudinaryUrl: uploadResult.secure_url,
+                cloudinaryPublicId: uploadResult.public_id,
+              },
+              req,
+              depth: 0,
+              overrideAccess: true,
+            });
+          }
+        } catch (error) {
+          req.payload.logger.error({
+            msg: "Cloudinary media sync failed",
+            error,
+            mediaId: doc.id,
+          });
+        }
+
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ doc, req }: any) => {
+        if (!cloudinaryConfigured) {
+          return doc;
+        }
+
+        const publicId = asString((doc as { cloudinaryPublicId?: unknown }).cloudinaryPublicId);
+        if (!publicId) {
+          return doc;
+        }
+
+        try {
+          await cloudinary.uploader.destroy(publicId, {
+            resource_type: "image",
+            invalidate: true,
+          });
+          await cloudinary.uploader.destroy(publicId, {
+            resource_type: "video",
+            invalidate: true,
+          });
+        } catch (error) {
+          req.payload.logger.error({
+            msg: "Cloudinary delete failed",
+            error,
+            mediaId: doc.id,
+            publicId,
+          });
+        }
+
+        return doc;
+      },
+    ],
+  },
+};

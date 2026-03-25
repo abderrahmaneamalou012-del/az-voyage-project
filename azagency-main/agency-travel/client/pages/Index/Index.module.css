@@ -1,0 +1,330 @@
+
+
+@keyframes slideUpEntrance {
+  from {
+    opacity: 0;
+    transform: var(--final-transform) translateY(120px);
+  }
+  to {
+    opacity: 1;
+    transform: var(--final-transform) translateY(0);
+  }
+}
+
+
+.tajMahal {
+  position: absolute;
+  left: calc(30% - 60px);
+  bottom: calc(7% - 50px);
+  width: 130px;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.1));
+  z-index: 11;
+  transform: rotate(-20.55deg);
+  --final-transform: rotate(-20.55deg);
+  opacity: 0;
+}
+.animate .tajMahal {
+  animation: slideUpEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+}
+
+.eiffel {
+  position: absolute;
+  left: 38%;
+  bottom: calc(7% - 50px);
+  width: 90px;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.1));
+  z-index: 12;
+  transform: rotate(-0.28deg);
+  --final-transform: rotate(-0.28deg);
+  opacity: 0;
+}
+.animate .eiffel {
+  animation: slideUpEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+}
+
+.petra {
+  position: absolute;
+  left: 53%;
+  bottom: 13%;
+  width: 120px;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.1));
+  z-index: 13;
+  transform: rotate(-0.28deg);
+  --final-transform: rotate(-0.28deg);
+  opacity: 0;
+}
+.animate .petra {
+  animation: slideUpEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.1s forwards;
+}
+
+.pyramids {
+  position: absolute;
+  left: 42%;
+  bottom: calc(4% - 90px);
+  width: 160px;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.1));
+  z-index: 14;
+  transform: rotate(-0.28deg);
+  --final-transform: rotate(-0.28deg);
+  opacity: 0;
+}
+.animate .pyramids {
+  animation: slideUpEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
+}
+
+.statue {
+  position: absolute;
+  left: 59%;
+  bottom: 25%;
+  width: 80px;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.1));
+  z-index: 15;
+  transform: rotate(-0.28deg);
+  --final-transform: rotate(-0.28deg);
+  opacity: 0;
+}
+.animate .statue {
+  animation: slideUpEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
+}
+
+.colosseum {
+  position: absolute;
+  left: 62%;
+  bottom: calc(16% - 100px);
+  width: 260px;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.1));
+  z-index: 14;
+  transform: rotate(40deg);
+  --final-transform: rotate(40deg);
+  opacity: 0;
+}
+.animate .colosseum {
+  animation: slideUpEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.7s forwards;
+}
+
+.airplane {
+  position: absolute;
+  left: 50%;
+  bottom: calc(-50% - 60px);
+  width: 900px;
+  z-index: 20;
+  transform: translateX(-50%) rotate(0.39deg);
+  filter: drop-shadow(0 25px 50px -12px rgba(0, 0, 0, 0.25));
+  --final-transform: translateX(-50%) rotate(0.39deg);
+  opacity: 0;
+}
+.animate .airplane {
+  animation: slideUpEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+
+
+
+@media (max-width: 867px) {
+
+  .tajMahal {
+    display: none;
+  }
+
+  .eiffel {
+    display: none;
+}
+
+  .petra {
+
+    display: none;
+  }
+
+  .pyramids {
+    display: none;
+  }
+
+  .statue {
+    display: none;
+  }
+
+  .colosseum {
+    display: none;
+  }
+
+  .airplane {
+    bottom: calc(-8% - 10px);
+    width: 760px;
+  }
+    
+}
+@media (min-width: 868px) {
+  
+  .tajMahal {
+    width: 365px;
+    left: calc(24% - 60px);
+    bottom: -80px;
+  }
+
+  .eiffel {
+    width: 430px;
+    left: 26%;
+    bottom: calc(2% - 80px);
+  }
+
+  .petra {
+    left: 46%;
+    bottom: calc(7% - 30px);
+    width: 375px;
+  }
+
+  .pyramids {
+    width: 455px;
+    bottom: calc(-2% - 120px);
+    left: 35%;
+    transform: rotate(-5.2deg);
+  }
+
+  .statue {
+    left: 52%;
+    bottom: calc(10% - 30px);
+    width: 415px;
+  }
+
+  .colosseum {
+    width: 485px;
+    left: 60%;
+    bottom: calc(13% - 130px);
+  }
+
+  .airplane {
+    width: 1200px;
+    bottom: calc(-40% - 60px);
+  }
+}
+@media (min-width:930px) {
+  .tajMahal {
+    width: 365px;
+    left: calc(24% - 60px);
+    bottom: -80px;
+  }
+
+  .eiffel {
+    width: 430px;
+    left: 26%;
+    bottom: calc(2% - 80px);
+  }
+
+  .petra {
+    left: 46%;
+    bottom: calc(7% - 30px);
+    width: 375px;
+  }
+
+  .pyramids {
+    width: 455px;
+    bottom: calc(-2% - 120px);
+    left: 35%;
+    transform: rotate(-5.2deg);
+  }
+
+  .statue {
+    left: 52%;
+    bottom: calc(10% - 30px);
+    width: 415px;
+  }
+
+  .colosseum {
+    width: 485px;
+    left: 60%;
+    bottom: calc(10% - 130px);
+  }
+
+  .airplane {
+    bottom: calc(-47% - 60px);
+    width: 1200px;
+  }
+    
+}
+
+@media (min-width: 1024px) {
+  .tajMahal {
+    width: 450px;
+    left: calc(24% - 60px);
+    bottom: -80px;
+  }
+
+  .eiffel {
+    width: 440px;
+    left: 26%;
+    bottom: calc(4% - 80px);
+  }
+
+  .petra {
+    left: 46%;
+    bottom: calc(9% - 30px);
+    width: 385px;
+  }
+
+  .pyramids {
+    width: 475px;
+    bottom: -120px;
+    left: 35%;
+    transform: rotate(-5.2deg);
+  }
+
+  .statue {
+    left: 52%;
+    bottom: calc(15% - 30px);
+    width: 425px;
+  }
+
+  .colosseum {
+    width: 540px;
+    left: 60%;
+    bottom: calc(10% - 130px);
+  }
+
+  .airplane {
+    bottom: calc(-45% - 60px);
+    width: 1200px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .tajMahal {
+    width: 465px;
+    left: calc(24% - 60px);
+    bottom: calc(10% - 80px);
+  }
+
+  .eiffel {
+    width: 455px;
+    left: 26%;
+    bottom: calc(15% - 80px);
+  }
+
+  .petra {
+    left: 46%;
+    bottom: calc(24% - 30px);
+    width: 400px;
+  }
+
+  .pyramids {
+    width: 495px;
+    bottom: calc(12% - 120px);
+    left: 35%;
+    transform: rotate(-5.2deg);
+  }
+
+  .statue {
+    left: 52%;
+    bottom: calc(23% - 30px);
+    width: 435px;
+  }
+
+  .colosseum {
+    width: 555px;
+    left: 60%;
+    bottom: calc(23% - 130px);
+  }
+
+  .airplane {
+    bottom: calc(-45% - 60px);
+    width: 1200px;
+  }
+}

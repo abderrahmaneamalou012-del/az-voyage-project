@@ -1,0 +1,241 @@
+
+.heroContainer {
+  position: relative;
+  width: 100%;
+  min-height: 600px;
+  height: 85vh;
+  max-height: 800px;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.videoBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+
+.videoOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5));
+  z-index: 2;
+}
+
+
+.navigation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  padding: 2rem 2.5rem;
+}
+
+.logoContainer {
+  width: 96px;
+  height: 64px;
+  
+  position: absolute;
+  left: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.navLinks {
+  display: none;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .navLinks {
+    display: flex;
+  }
+}
+
+.navLink {
+  position: relative;
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  transition: color 0.3s;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: #F5C34B;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  height: 2px;
+  width: 0;
+  background-color: #F5C34B;
+  transition: width 0.3s;
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Jakarta', system-ui, sans-serif;
+  font-size: clamp(80px, 15vw, 220px);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.1em;
+  z-index: 3;
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+
+.heroContent {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 900px;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.heroTitle {
+  font-family: 'Jakarta', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: white;
+  margin: 0;
+}
+
+.highlightText {
+  color: #F5C34B;
+}
+
+.heroSubtitle {
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 620px;
+  margin: 0;
+}
+
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1rem;
+  background: white;
+  border-radius: 50px;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.searchInput {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  font-size: 16px;
+  border: none;
+  background: transparent;
+  color: #333;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: #999;
+}
+
+.searchButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.8rem;
+  background: #0e3e43;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.searchButton:hover {
+  background: #002952;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.4);
+}
+
+
+@media (max-width: 640px) {
+  .heroContainer {
+    min-height: 500px;
+  }
+
+  .navigation {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .logoContainer {
+    width: 72px;
+    height: 48px;
+  }
+
+  .searchForm {
+    flex-direction: column;
+    gap: 0.5rem;
+    border-radius: 20px;
+    padding: 0.75rem;
+  }
+
+  .searchInput {
+    width: 100%;
+    padding: 0.75rem 1rem;
+  }
+
+  .searchButton {
+    width: 100%;
+    justify-content: center;
+    border-radius: 16px;
+  }
+}
