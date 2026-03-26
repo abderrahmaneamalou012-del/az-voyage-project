@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { getPayload } from "payload";
-import config from "./payload.config";
+import config from "../src/payload.config";
 
 const heroBackground = {
   imageUrl: "/assets/figma/e34c3efe581f3c46ab4d29d681117654609f65b9.jpg",

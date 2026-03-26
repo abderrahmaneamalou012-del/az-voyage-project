@@ -7,12 +7,12 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p 3001",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 3001",
-    "seed": "tsx src/seed.ts",
-    "backfill:gallery": "tsx src/backfill-gallery-page.ts",
-    "backfill:home": "tsx src/backfill-home-page.ts",
-    "backfill:booking-process": "tsx src/backfill-booking-process-content.ts",
-    "backfill:test-offers": "tsx src/backfill-offer-detail-sidebar-test-offers.ts",
-    "backfill:destinations": "tsx src/backfill-destinations.ts",
+    "seed": "tsx scripts/seed.ts",
+    "backfill:gallery": "tsx scripts/backfill-gallery-page.ts",
+    "backfill:home": "tsx scripts/backfill-home-page.ts",
+    "backfill:booking-process": "tsx scripts/backfill-booking-process-content.ts",
+    "backfill:test-offers": "tsx scripts/backfill-offer-detail-sidebar-test-offers.ts",
+    "backfill:destinations": "tsx scripts/backfill-destinations.ts",
     "generate:types": "payload generate:types"
   },
   "dependencies": {
