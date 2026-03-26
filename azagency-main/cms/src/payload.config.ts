@@ -93,5 +93,5 @@ export default buildConfig({
   },
 
   cors: "*",
-  csrf: allowedOrigins,
+  csrf: false,
 });
