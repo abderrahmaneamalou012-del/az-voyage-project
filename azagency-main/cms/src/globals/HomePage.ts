@@ -51,7 +51,7 @@ export const HomePage: GlobalConfig = {
   label: "Page d'accueil",
   access: {
     read: () => true,
-    update: ({ req }) => Boolean(req?.user),
+    update: () => true,
   },
   fields: [
     {

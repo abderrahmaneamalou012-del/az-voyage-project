@@ -20,9 +20,9 @@ export const FAQs: CollectionConfig = {
   },
   access: {
     read: () => true,
-    create: canManageFaqs,
-    update: canManageFaqs,
-    delete: canManageFaqs,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
   },
   fields: [
     {

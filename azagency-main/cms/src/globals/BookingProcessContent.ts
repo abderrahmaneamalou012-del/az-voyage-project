@@ -42,7 +42,7 @@ export const BookingProcessContent: GlobalConfig = {
   label: "De la réservation au décollage",
   access: {
     read: () => true,
-    update: ({ req }) => Boolean(req?.user),
+    update: () => true,
   },
   fields: [
     {
