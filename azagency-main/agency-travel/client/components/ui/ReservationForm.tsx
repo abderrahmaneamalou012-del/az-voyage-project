@@ -149,7 +149,8 @@ const ReservationForm = ({
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${CMS_URL}/api/reservations`, {
+      const targetUrl = `${CMS_URL}/api/reservations`;
+      const res = await fetch(targetUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -169,14 +170,14 @@ const ReservationForm = ({
       });
 
       if (!res.ok) {
-        let errMsg = `Erreur du serveur (${res.status})`;
+        let errMsg = `Erreur (${res.status}) sur ${targetUrl}`;
         try {
           const errBody = await res.json();
           console.error("CMS reservation error:", errBody);
           if (errBody?.errors?.[0]?.message) {
-            errMsg = errBody.errors[0].message;
+            errMsg = `${errBody.errors[0].message} (URL: ${targetUrl})`;
           } else if (errBody?.message) {
-            errMsg = errBody.message;
+            errMsg = `${errBody.message} (URL: ${targetUrl})`;
           }
         } catch { }
         throw new Error(errMsg);
