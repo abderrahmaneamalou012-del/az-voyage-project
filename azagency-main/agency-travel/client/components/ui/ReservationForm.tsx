@@ -169,15 +169,24 @@ const ReservationForm = ({
       });
 
       if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        console.error("CMS reservation error:", errBody);
-        throw new Error(`CMS responded ${res.status}`);
+        let errMsg = `Erreur du serveur (${res.status})`;
+        try {
+          const errBody = await res.json();
+          console.error("CMS reservation error:", errBody);
+          if (errBody?.errors?.[0]?.message) {
+            errMsg = errBody.errors[0].message;
+          } else if (errBody?.message) {
+            errMsg = errBody.message;
+          }
+        } catch { }
+        throw new Error(errMsg);
       }
 
       setSubmitted(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Reservation submit error:", err);
-      setError("Une erreur est survenue. Veuillez réessayer.");
+      // We explicitly show the real error message if we parsed it from the CMS
+      setError(err?.message || "Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setSubmitting(false);
     }
