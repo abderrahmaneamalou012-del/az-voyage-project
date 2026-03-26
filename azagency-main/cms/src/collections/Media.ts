@@ -27,9 +27,8 @@ if (cloudinaryConfigured) {
   });
 }
 
-const isEditorOrAdmin = ({ req }: any) => {
-  const role = req?.user?.role;
-  return role === "admin" || role === "editor";
+const authenticated = ({ req }: any) => {
+  return Boolean(req?.user);
 };
 
 const asString = (value: unknown) =>
@@ -73,9 +72,9 @@ export const Media: CollectionConfig = {
   slug: "media",
   access: {
     read: () => true, 
-    create: isEditorOrAdmin,
-    update: isEditorOrAdmin,
-    delete: isEditorOrAdmin,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   upload: {
     staticDir: uploadDir,

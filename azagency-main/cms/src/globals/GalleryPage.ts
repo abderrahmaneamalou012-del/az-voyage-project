@@ -72,6 +72,7 @@ export const GalleryPage: GlobalConfig = {
   label: "Page galerie",
   access: {
     read: () => true,
+    update: ({ req }) => Boolean(req?.user),
   },
   fields: [
     {

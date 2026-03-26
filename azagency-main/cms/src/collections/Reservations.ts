@@ -8,8 +8,10 @@ export const Reservations: CollectionConfig = {
     description: "Demandes de réservation envoyées par les clients.",
   },
   access: {
-    read: () => true,
+    read: ({ req }) => Boolean(req?.user),
     create: () => true,
+    update: ({ req }) => Boolean(req?.user),
+    delete: ({ req }) => Boolean(req?.user),
   },
   fields: [
     {
