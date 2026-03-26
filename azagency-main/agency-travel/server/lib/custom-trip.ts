@@ -1,3 +1,4 @@
+import { Resend } from "resend";
 import type { CustomTripRequest, CustomTripResponse } from "../../shared/api.js";
 
 interface HandlerResult<T> {
@@ -7,7 +8,6 @@ interface HandlerResult<T> {
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const MAX_CHILD_AGE = 100;
-const RESEND_API_URL = "https://api.resend.com/emails";
 
 function escapeHtml(value: string): string {
   return value
@@ -89,7 +89,8 @@ export async function processCustomTrip(
         status: 200,
         body: {
           success: true,
-          message: "Demande enregistrée localement. La configuration email sera fournie en production.",
+          message:
+            "Demande enregistrée localement. La configuration email sera fournie en production.",
         },
       };
     }
@@ -121,39 +122,27 @@ export async function processCustomTrip(
   `;
 
   try {
-    const providerResponse = await fetch(RESEND_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: recipientEmail,
-        subject: `Voyage sur mesure - ${fullName}`,
-        html,
-        reply_to: email,
-      }),
+    const resend = new Resend(resendApiKey);
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [recipientEmail],
+      subject: `Voyage sur mesure - ${fullName}`,
+      html,
+      reply_to: email,
     });
 
-    const providerPayload = await providerResponse.json().catch(async () => ({
-      raw: await providerResponse.text().catch(() => ""),
-    }));
-
-    const emailId =
-      providerPayload &&
-      typeof providerPayload === "object" &&
-      "id" in providerPayload &&
-      typeof providerPayload.id === "string"
-        ? providerPayload.id
-        : undefined;
-
-    if (!providerResponse.ok || !emailId) {
-      console.error("Custom trip email provider error:", providerPayload);
+    if (error) {
+      console.error("Custom trip email provider error:", {
+        error,
+        config: { from: fromEmail, to: recipientEmail },
+      });
 
       return {
         status: 502,
-        body: { success: false, message: "Erreur lors de l'envoi." },
+        body: {
+          success: false,
+          message: `Erreur Resend: ${error.message || "Problème d'envoi"}`,
+        },
       };
     }
 
@@ -161,12 +150,12 @@ export async function processCustomTrip(
       status: 200,
       body: { success: true, message: "Demande envoyée avec succès." },
     };
-  } catch (error) {
-    console.error("Custom trip email error:", error);
+  } catch (err) {
+    console.error("Custom trip email error:", err);
 
     return {
       status: 500,
-      body: { success: false, message: "Erreur lors de l'envoi." },
+      body: { success: false, message: "Erreur serveur lors de l'envoi." },
     };
   }
 }
