@@ -36,8 +36,9 @@ export interface ReservationData {
   childAges?: Record<number, number | null>;
 }
 
-const API_URL =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+// Submit directly to the CMS public API (no backend middleman needed)
+const CMS_URL =
+  (import.meta.env.VITE_CMS_URL as string | undefined)?.replace(/\/$/, "") || "";
 
 const ReservationForm = ({
   hotels,
@@ -141,9 +142,14 @@ const ReservationForm = ({
       }
     }
 
+    if (!CMS_URL) {
+      setError("Le CMS n'est pas configuré. Veuillez réessayer plus tard.");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_URL}/api/reservation`, {
+      const res = await fetch(`${CMS_URL}/api/reservations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -151,17 +157,22 @@ const ReservationForm = ({
           phone,
           offerTitle: offerTitle || "",
           offerId: offerId || "",
-          selectedHotelId: selectedHotelData?.id,
+          ...(selectedHotelData?.id ? { hotel: selectedHotelData.id } : {}),
           selectedHotel: selectedHotelData?.name || selectedHotel,
           adults,
           children,
           childDetails: childDetailsArr.length > 0 ? JSON.stringify(childDetailsArr) : undefined,
           totalEstimated: formatPrice(total),
-          currency,
+          currency: currency || "DZD",
+          status: "new",
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        console.error("CMS reservation error:", errBody);
+        throw new Error(`CMS responded ${res.status}`);
+      }
 
       setSubmitted(true);
     } catch (err) {
