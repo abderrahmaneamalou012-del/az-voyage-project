@@ -1,5 +1,7 @@
 {
-  "outputDirectory": ".",
+  "buildCommand": "pnpm install && pnpm run build:client",
+  "outputDirectory": "dist/spa",
+  "installCommand": "pnpm install",
   "routes": [
     {
       "handle": "filesystem"
