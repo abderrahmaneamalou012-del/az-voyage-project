@@ -1,4 +1,4 @@
-import type { CustomTripRequest, CustomTripResponse } from "../../shared/api";
+import type { CustomTripRequest, CustomTripResponse } from "../../shared/api.js";
 
 interface HandlerResult<T> {
   status: number;

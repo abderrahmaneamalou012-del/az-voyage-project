@@ -1,5 +1,5 @@
-import type { CustomTripRequest } from "../shared/api";
-import { processCustomTrip } from "../server/lib/custom-trip";
+import type { CustomTripRequest } from "../shared/api.js";
+import { processCustomTrip } from "../server/lib/custom-trip.js";
 
 type ApiRequest = {
   method?: string;
