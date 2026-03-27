@@ -86,7 +86,7 @@ export const Media: CollectionConfig = {
     delete: authenticated,
   },
   upload: {
-    staticDir: uploadDir,
+    disableLocalStorage: true,
     imageSizes: [
       { name: "thumbnail", width: 400, height: 300, position: "centre" },
       { name: "card", width: 768, height: 512, position: "centre" },
@@ -144,92 +144,46 @@ export const Media: CollectionConfig = {
         return doc;
       },
     ],
-    afterChange: [
-      async ({ doc, req, previousDoc }: any) => {
-        if (!cloudinaryConfigured) {
-          return doc;
-        }
+    beforeChange: [
+      async ({ data, req, operation }) => {
+        if (!cloudinaryConfigured) return data;
 
-        const file = getRequestFile(req);
-        const data = (req as { data?: Record<string, unknown> } | undefined)?.data || {};
+        const reqFile = (req as any).file;
         const externalUrl = asString(data.externalUrl);
-        const previousExternalUrl = asString((previousDoc as { externalUrl?: unknown } | null)?.externalUrl);
-        const filename = asString((doc as { filename?: unknown }).filename);
-        const previousFilename = asString((previousDoc as { filename?: unknown } | null)?.filename);
-        const mimeType = asString((doc as { mimeType?: unknown }).mimeType);
 
         try {
-          if (file?.path) {
-            const resourceType = inferResourceType(file.mimetype || "image/");
-            const uploadResult = await cloudinary.uploader.upload(file.path, {
-              folder: CLOUDINARY_FOLDER,
-              resource_type: resourceType,
+          if (reqFile && reqFile.data) {
+            const resourceType = inferResourceType(reqFile.mimetype || "image/");
+            
+            const uploadResult = await new Promise<any>((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                { folder: CLOUDINARY_FOLDER, resource_type: resourceType },
+                (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+                }
+              );
+              stream.end(reqFile.data);
             });
 
-            await req.payload.update({
-              collection: "media",
-              id: String(doc.id),
-              data: {
-                cloudinaryUrl: uploadResult.secure_url,
-                cloudinaryPublicId: uploadResult.public_id,
-              },
-              req,
-              depth: 0,
-              overrideAccess: true,
-            });
-          } else if (filename && filename !== previousFilename) {
-            const localPath = resolveUploadedFilePath(filename);
-            if (localPath) {
-              const uploadResult = await cloudinary.uploader.upload(localPath, {
-                folder: CLOUDINARY_FOLDER,
-                resource_type: inferResourceType(mimeType || "image/"),
-              });
-
-              await req.payload.update({
-                collection: "media",
-                id: String(doc.id),
-                data: {
-                  cloudinaryUrl: uploadResult.secure_url,
-                  cloudinaryPublicId: uploadResult.public_id,
-                },
-                req,
-                depth: 0,
-                overrideAccess: true,
-              });
-            } else {
-              req.payload.logger.error({
-                msg: "Cloudinary sync skipped: uploaded file path not found",
-                mediaId: doc.id,
-                filename,
-              });
-            }
-          } else if (externalUrl && externalUrl !== previousExternalUrl) {
+            data.cloudinaryUrl = uploadResult.secure_url;
+            data.cloudinaryPublicId = uploadResult.public_id;
+            data.url = uploadResult.secure_url;
+            data.filename = uploadResult.original_filename || reqFile.name;
+          } else if (externalUrl && externalUrl !== "") {
             const uploadResult = await cloudinary.uploader.upload(externalUrl, {
               folder: CLOUDINARY_FOLDER,
               resource_type: "auto",
             });
-
-            await req.payload.update({
-              collection: "media",
-              id: String(doc.id),
-              data: {
-                cloudinaryUrl: uploadResult.secure_url,
-                cloudinaryPublicId: uploadResult.public_id,
-              },
-              req,
-              depth: 0,
-              overrideAccess: true,
-            });
+            data.cloudinaryUrl = uploadResult.secure_url;
+            data.cloudinaryPublicId = uploadResult.public_id;
+            data.url = uploadResult.secure_url;
           }
         } catch (error) {
-          req.payload.logger.error({
-            msg: "Cloudinary media sync failed",
-            error,
-            mediaId: doc.id,
-          });
+          req.payload.logger.error({ msg: "Cloudinary stream upload failed", error });
         }
 
-        return doc;
+        return data;
       },
     ],
     afterDelete: [
