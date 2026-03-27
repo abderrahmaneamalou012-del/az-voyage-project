@@ -59,7 +59,7 @@ export const Media: CollectionConfig = {
     delete: () => true,
   },
   upload: {
-    disableLocalStorage: true,
+    disableLocalStorage: false,
     mimeTypes: ["image/*", "video/*"],
   },
   fields: [
@@ -90,6 +90,7 @@ export const Media: CollectionConfig = {
 
         if (!cloudinaryConfigured) {
           req.payload.logger.warn({ msg: "Cloudinary not configured" });
+          // allow local uploads to proceed if cloudinary is unavailable
           return data;
         }
 
