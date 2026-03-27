@@ -5,7 +5,6 @@ import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import sharp from "sharp";
 import { cloudStorage } from '@payloadcms/plugin-cloud-storage';
-import { cloudinaryAdapter } from '@payloadcms/plugin-cloud-storage/cloudinary';
 
 
 import { Users } from "./collections/Users";
@@ -84,12 +83,15 @@ export default buildConfig({
     cloudStorage({
       collections: {
         media: {
-          adapter: cloudinaryAdapter({
-            cloud_name: requireEnv("CLOUDINARY_CLOUD_NAME", ""),
-            api_key: requireEnv("CLOUDINARY_API_KEY", ""),
-            api_secret: requireEnv("CLOUDINARY_API_SECRET", ""),
-            folder: requireEnv("CLOUDINARY_FOLDER", "azagency"),
-          }),
+          adapter: {
+            name: 'cloudinary',
+            config: {
+              cloud_name: requireEnv("CLOUDINARY_CLOUD_NAME", ""),
+              api_key: requireEnv("CLOUDINARY_API_KEY", ""),
+              api_secret: requireEnv("CLOUDINARY_API_SECRET", ""),
+              folder: requireEnv("CLOUDINARY_FOLDER", "azagency"),
+            },
+          },
         },
       },
     }),
