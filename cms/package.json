@@ -1,0 +1,38 @@
+{
+  "name": "agency-travel-cms",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p 3001",
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 3001",
+    "seed": "tsx scripts/seed.ts",
+    "backfill:gallery": "tsx scripts/backfill-gallery-page.ts",
+    "backfill:home": "tsx scripts/backfill-home-page.ts",
+    "backfill:booking-process": "tsx scripts/backfill-booking-process-content.ts",
+    "backfill:test-offers": "tsx scripts/backfill-offer-detail-sidebar-test-offers.ts",
+    "backfill:destinations": "tsx scripts/backfill-destinations.ts",
+    "generate:types": "payload generate:types"
+  },
+  "dependencies": {
+    "@payloadcms/db-mongodb": "3.79.0",
+    "@payloadcms/next": "3.79.0",
+    "@payloadcms/richtext-lexical": "3.79.0",
+    "cloudinary": "^2.5.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.0",
+    "graphql": "^16.9.0",
+    "mongodb": "^6.8.0",
+    "next": "15.4.11",
+    "payload": "3.79.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.33.0",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
