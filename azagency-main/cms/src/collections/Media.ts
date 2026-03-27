@@ -27,7 +27,7 @@ export const Media: CollectionConfig = {
           });
           args.req.file = undefined;
           if (!args.data) args.data = {};
-          args.data.cloudinaryUrl = result.secure_url;
+          args.data.url = result.secure_url;
           args.data.filename = result.public_id;
           args.data.cloudinaryId = result.public_id;
         }
