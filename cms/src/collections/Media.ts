@@ -21,6 +21,8 @@ export const Media: CollectionConfig = {
   hooks: {
     afterChange: [
       async ({ doc, operation }) => {
+        console.log("🔥 MEDIA HOOK TRIGGERED");
+
         if (operation !== "create") return doc;
 
         try {
