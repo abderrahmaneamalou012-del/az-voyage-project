@@ -27,7 +27,7 @@ export const Media: CollectionConfig = {
         const file = req.files?.file;
 
         if (!file) {
-          console.log("❌ No file found in request");
+          console.log("No file found in request");
           return data;
         }
 
@@ -40,8 +40,12 @@ export const Media: CollectionConfig = {
 
         return {
           ...data,
+          url: result.secure_url,
           cloudinaryUrl: result.secure_url,
           cloudinaryId: result.public_id,
+          filename: result.public_id.split("/").pop() || result.public_id,
+          mimeType: file.mimetype,
+          filesize: file.size,
         };
       },
     ],
