@@ -149,7 +149,7 @@ export const Media: CollectionConfig = {
           if (reqFile && reqFile.data) {
             const resourceType = inferResourceType(reqFile.mimetype || "image/");
             
-            const uploadResult = await new Promise<any>((resolve, reject) => {
+            const uploadPromise = new Promise<any>((resolve, reject) => {
               const stream = cloudinary.uploader.upload_stream(
                 { folder: CLOUDINARY_FOLDER, resource_type: resourceType },
                 (error, result) => {
@@ -159,6 +159,13 @@ export const Media: CollectionConfig = {
               );
               stream.end(reqFile.data);
             });
+
+            // Add timeout to prevent hanging
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Cloudinary upload timeout')), 25000);
+            });
+
+            const uploadResult = await Promise.race([uploadPromise, timeoutPromise]);
 
             data.cloudinaryUrl = uploadResult.secure_url;
             data.cloudinaryPublicId = uploadResult.public_id;
@@ -174,7 +181,9 @@ export const Media: CollectionConfig = {
             data.url = uploadResult.secure_url;
           }
         } catch (error) {
-          req.payload.logger.error({ msg: "Cloudinary stream upload failed", error });
+          req.payload.logger.error({ msg: "Cloudinary upload failed", error });
+          // Don't fail the request, but log the error
+          // Optionally, you can set a flag or handle differently
         }
 
         return data;
