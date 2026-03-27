@@ -17,7 +17,7 @@ export const Media: CollectionConfig = {
 
   hooks: {
     afterChange: [
-      async ({ doc, operation }) => {
+      async ({ doc, operation, req }) => {
         console.log("🔥 MEDIA HOOK TRIGGERED");
 
         if (operation !== "create") return doc;
@@ -29,11 +29,16 @@ export const Media: CollectionConfig = {
             folder: "agency-travel",
           });
 
-          return {
-            ...doc,
-            cloudinaryUrl: result.secure_url,
-            cloudinaryId: result.public_id,
-          };
+          await req.payload.update({
+            collection: "media",
+            id: doc.id,
+            data: {
+              cloudinaryUrl: result.secure_url,
+              cloudinaryId: result.public_id,
+            },
+          });
+
+          return doc;
         } catch (err) {
           console.error("Cloudinary upload failed:", err);
           return doc;
