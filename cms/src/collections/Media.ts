@@ -13,10 +13,7 @@ export const Media: CollectionConfig = {
     read: () => true,
   },
 
-  upload: {
-    disableLocalStorage: true,
-    mimeTypes: ["image/*", "video/*"],
-  },
+  upload: false,
 
   hooks: {
     afterChange: [
