@@ -4,6 +4,7 @@ import { buildConfig } from "payload";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import sharp from "sharp";
+import { cloudStorage } from '@payloadcms/plugin-cloud-storage';
 
 
 import { Users } from "./collections/Users";
@@ -77,6 +78,24 @@ export default buildConfig({
   ],
 
   globals: [GalleryPage, HomePage, BookingProcessContent],
+
+  plugins: [
+    cloudStorage({
+      collections: {
+        media: {
+          adapter: {
+            name: 'cloudinary',
+            config: {
+              cloud_name: requireEnv("CLOUDINARY_CLOUD_NAME", ""),
+              api_key: requireEnv("CLOUDINARY_API_KEY", ""),
+              api_secret: requireEnv("CLOUDINARY_API_SECRET", ""),
+              folder: requireEnv("CLOUDINARY_FOLDER", "azagency"),
+            },
+          },
+        },
+      },
+    }),
+  ],
 
   editor: lexicalEditor(),
 
