@@ -81,48 +81,73 @@ export const Media: CollectionConfig = {
   hooks: {
     beforeChange: [
       async ({ data, req }) => {
-        if (!cloudinaryConfigured) return data;
+        req.payload.logger.info({ msg: "Media beforeChange start", cloudinaryConfigured });
 
         const reqFile = (req as any).file;
         const externalUrl = asString(data.externalUrl);
 
-        if (!reqFile && !externalUrl) return data;
+        req.payload.logger.info({ msg: "Media beforeChange payload", reqFile: Boolean(reqFile), externalUrl });
+
+        if (!cloudinaryConfigured) {
+          req.payload.logger.warn({ msg: "Cloudinary not configured" });
+          return data;
+        }
+
+        if (!reqFile && !externalUrl) {
+          return data;
+        }
 
         try {
           if (reqFile) {
             const fileBuffer = await readRequestFile(reqFile);
-            if (fileBuffer) {
-              const resourceType = inferResourceType(reqFile.mimetype || "image/");
 
-              const uploadResult = await new Promise<any>((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                  { folder: CLOUDINARY_FOLDER, resource_type: resourceType },
-                  (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result);
-                  }
-                );
-
-                stream.end(fileBuffer);
-              });
-
-              data.cloudinaryUrl = uploadResult.secure_url;
-              data.cloudinaryPublicId = uploadResult.public_id;
-              data.url = uploadResult.secure_url;
-              data.filename = uploadResult.original_filename || reqFile.originalname || reqFile.filename;
+            if (!fileBuffer) {
+              req.payload.logger.warn({ msg: "No file buffer from uploaded file" });
+              return data;
             }
+
+            const resourceType = inferResourceType(reqFile.mimetype || "image/");
+
+            const uploadResult = await new Promise<any>((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                { folder: CLOUDINARY_FOLDER, resource_type: resourceType },
+                (error, result) => {
+                  if (error) return reject(error);
+                  resolve(result);
+                }
+              );
+
+              stream.end(fileBuffer);
+            });
+
+            if (!uploadResult || !uploadResult.secure_url) {
+              req.payload.logger.error({ msg: "Cloudinary upload returned no secure_url", uploadResult });
+              return data;
+            }
+
+            data.cloudinaryUrl = uploadResult.secure_url;
+            data.cloudinaryPublicId = uploadResult.public_id;
+            data.url = uploadResult.secure_url;
+            data.filename = uploadResult.original_filename || reqFile.originalname || reqFile.filename;
+
+            req.payload.logger.info({ msg: "Cloudinary upload success", url: data.url });
           } else if (externalUrl) {
             const uploadResult = await cloudinary.uploader.upload(externalUrl, {
               folder: CLOUDINARY_FOLDER,
               resource_type: "auto",
             });
+
             data.cloudinaryUrl = uploadResult.secure_url;
             data.cloudinaryPublicId = uploadResult.public_id;
             data.url = uploadResult.secure_url;
+
+            req.payload.logger.info({ msg: "Cloudinary external URL upload success", url: data.url });
           }
-        } catch (error) {
-          req.payload.logger.error({ msg: "Cloudinary upload failed", error });
-          throw new Error("Cloudinary upload failed");
+        } catch (error: any) {
+          req.payload.logger.error({ msg: "Cloudinary upload failed", error: error?.message || error });
+          // Keep request going to avoid indefinite client loading; set error in data
+          data.errorMessage = "Upload to Cloudinary failed. See server logs.";
+          return data;
         }
 
         return data;
