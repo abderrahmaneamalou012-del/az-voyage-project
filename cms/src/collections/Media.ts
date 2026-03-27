@@ -9,40 +9,38 @@ cloudinary.config({
 
 export const Media: CollectionConfig = {
   slug: "media",
+
   access: {
     read: () => true,
   },
 
-  upload: false,
+  upload: {
+    disableLocalStorage: true,
+    mimeTypes: ["image/*", "video/*"],
+  },
 
   hooks: {
-    afterChange: [
-      async ({ doc, operation, req }) => {
-        console.log("🔥 MEDIA HOOK TRIGGERED");
+    beforeChange: [
+      async ({ data, req, operation }) => {
+        if (operation !== "create") return data;
 
-        if (operation !== "create") return doc;
+        if (req.file) {
+          const file = req.file;
 
-        try {
-          const fileUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/file/${doc.filename}`;
+          const base64 = `data:${file.mimetype};base64,${file.data.toString("base64")}`;
 
-          const result = await cloudinary.uploader.upload(fileUrl, {
+          const result = await cloudinary.uploader.upload(base64, {
             folder: "agency-travel",
           });
 
-          await req.payload.update({
-            collection: "media",
-            id: doc.id,
-            data: {
-              cloudinaryUrl: result.secure_url,
-              cloudinaryId: result.public_id,
-            },
-          });
-
-          return doc;
-        } catch (err) {
-          console.error("Cloudinary upload failed:", err);
-          return doc;
+          return {
+            ...data,
+            cloudinaryUrl: result.secure_url,
+            cloudinaryId: result.public_id,
+          };
         }
+
+        return data;
       },
     ],
   },
