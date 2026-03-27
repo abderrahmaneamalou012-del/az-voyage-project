@@ -8,21 +8,32 @@ const uploadDir =
     ? "/tmp"
     : "media";
 
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
-const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
-const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
+const CLOUDINARY_URL = process.env.CLOUDINARY_URL;
+
+let cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+let apiKey = process.env.CLOUDINARY_API_KEY;
+let apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+if (CLOUDINARY_URL && (!cloudName || !apiKey || !apiSecret)) {
+  // CLOUDINARY_URL format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+  const regex = /cloudinary:\/\/([^:]+):([^@]+)@(.+)/;
+  const match = CLOUDINARY_URL.match(regex);
+  if (match) {
+    apiKey = match[1];
+    apiSecret = match[2];
+    cloudName = match[3];
+  }
+}
+
 const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || "azagency";
 
-const cloudinaryConfigured =
-  Boolean(CLOUDINARY_CLOUD_NAME) &&
-  Boolean(CLOUDINARY_API_KEY) &&
-  Boolean(CLOUDINARY_API_SECRET);
+const cloudinaryConfigured = Boolean(cloudName) && Boolean(apiKey) && Boolean(apiSecret);
 
 if (cloudinaryConfigured) {
   cloudinary.config({
-    cloud_name: CLOUDINARY_CLOUD_NAME,
-    api_key: CLOUDINARY_API_KEY,
-    api_secret: CLOUDINARY_API_SECRET,
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
     secure: true,
   });
 }
