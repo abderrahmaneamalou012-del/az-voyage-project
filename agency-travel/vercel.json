@@ -1,0 +1,22 @@
+{
+  "buildCommand": "pnpm run build:client",
+  "outputDirectory": "dist/spa",
+  "installCommand": "pnpm install",
+  "routes": [
+    {
+      "src": "/api/reservation",
+      "dest": "/api/reservation"
+    },
+    {
+      "src": "/api/custom-trip",
+      "dest": "/api/custom-trip"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
