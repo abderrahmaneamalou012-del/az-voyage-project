@@ -4,7 +4,7 @@ import { buildConfig } from "payload";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import sharp from "sharp";
-import { cloudStorage } from '@payloadcms/plugin-cloud-storage';
+import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage';
 
 
 import { Users } from "./collections/Users";
@@ -80,7 +80,7 @@ export default buildConfig({
   globals: [GalleryPage, HomePage, BookingProcessContent],
 
   plugins: [
-    cloudStorage({
+    cloudStoragePlugin({
       collections: {
         media: {
           adapter: {
