@@ -116,13 +116,20 @@ export async function fetchByField<T>(
 }
 
 export function resolveImageUrl(
-  uploadField?: string | { url?: string } | null,
+  uploadField?: string | { url?: string; cloudinaryUrl?: string } | null,
   fallbackUrl?: string,
 ): string {
+  // Si Payload renvoie juste l'id (string) au lieu de l'objet média, on ne peut pas construire une URL ici
   if (typeof uploadField === "string") {
     return fallbackUrl || "";
   }
 
+  // 1) Cloudinary (ce que ton CMS remplit)
+  if (uploadField?.cloudinaryUrl) {
+    return uploadField.cloudinaryUrl;
+  }
+
+  // 2) URL Payload (si elle existe)
   if (uploadField?.url) {
     return uploadField.url.startsWith("http")
       ? uploadField.url
@@ -135,10 +142,13 @@ export function resolveImageUrl(
 }
 
 export function resolveGalleryUrls(
-  items?: Array<{ image?: string | { url?: string } | null; imageUrl?: string }>,
+  items?: Array<{
+    image?: string | { url?: string; cloudinaryUrl?: string } | null;
+    imageUrl?: string;
+  }>,
 ): string[] {
   if (!items) return [];
   return items
     .map((item) => resolveImageUrl(item.image, item.imageUrl))
     .filter(Boolean);
-}
+} 
