@@ -16,11 +16,10 @@ export const Media: CollectionConfig = {
     delete: () => true,
   },
   hooks: {
-    beforeOperation: [
-      async ({ operation, args }) => {
-        if (operation === "create" && args?.req?.file) {
-          const file = args.req.file;
-
+    beforeChange: [
+      async ({ operation, req, data }) => {
+        if (operation === "create" && req?.file) {
+          const file = req.file;
           const base64 = `data:${file.mimetype};base64,${file.data.toString("base64")}`;
 
           const result = await cloudinary.uploader.upload(base64, {
@@ -28,16 +27,17 @@ export const Media: CollectionConfig = {
             resource_type: "auto",
           });
 
-          args.req.file = undefined;
+          req.file = undefined;
 
-          if (!args.data) args.data = {};
-
-          args.data.url = result.secure_url;
-          args.data.filename = result.public_id;
-          args.data.cloudinaryId = result.public_id;
+          return {
+            ...data,
+            cloudinaryUrl: result.secure_url,
+            cloudinaryId: result.public_id,
+            filename: result.public_id,
+          };
         }
 
-        return args;
+        return data;
       },
     ],
   },
@@ -53,7 +53,7 @@ export const Media: CollectionConfig = {
       label: "Texte alternatif",
     },
     {
-      name: "url",
+      name: "cloudinaryUrl",
       type: "text",
       admin: { readOnly: true },
     },
