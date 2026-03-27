@@ -5,7 +5,6 @@ import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import sharp from "sharp";
 
-
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { Offers } from "./collections/Offers";
@@ -61,7 +60,6 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-
   collections: [
     Users,
     Media,
@@ -75,23 +73,16 @@ export default buildConfig({
     BookingSteps,
     Reservations,
   ],
-
   globals: [GalleryPage, HomePage, BookingProcessContent],
-
   editor: lexicalEditor(),
-
   secret: requireEnv("PAYLOAD_SECRET", DEV_PAYLOAD_SECRET),
-
   db: mongooseAdapter({
     url: requireEnv("MONGODB_URI", DEV_MONGODB_URI),
   }),
-
   sharp,
-
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },
-
   cors: "*",
   csrf: allowedOrigins,
 });
