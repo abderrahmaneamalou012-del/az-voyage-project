@@ -21,26 +21,28 @@ export const Media: CollectionConfig = {
 
   hooks: {
     beforeChange: [
-      async ({ data, req, operation }) => {
+      async ({ data, operation, req }) => {
         if (operation !== "create") return data;
 
-        if (req.file) {
-          const file = req.file;
+        const file = req.files?.file;
 
-          const base64 = `data:${file.mimetype};base64,${file.data.toString("base64")}`;
-
-          const result = await cloudinary.uploader.upload(base64, {
-            folder: "agency-travel",
-          });
-
-          return {
-            ...data,
-            cloudinaryUrl: result.secure_url,
-            cloudinaryId: result.public_id,
-          };
+        if (!file) {
+          console.log("❌ No file found in request");
+          return data;
         }
 
-        return data;
+        const buffer = file.data;
+        const base64 = `data:${file.mimetype};base64,${buffer.toString("base64")}`;
+
+        const result = await cloudinary.uploader.upload(base64, {
+          folder: "agency-travel",
+        });
+
+        return {
+          ...data,
+          cloudinaryUrl: result.secure_url,
+          cloudinaryId: result.public_id,
+        };
       },
     ],
   },
