@@ -4,7 +4,7 @@ export const Reservations: CollectionConfig = {
   slug: "reservations",
   admin: {
     useAsTitle: "fullName",
-    defaultColumns: ["fullName", "offerTitle", "hotel", "selectedHotel", "adults", "children", "createdAt"],
+    defaultColumns: ["fullName", "phone", "offerTitle", "hotel", "selectedHotel", "adults", "createdAt"],
     description: "Demandes de réservation envoyées par les clients.",
   },
   access: {
