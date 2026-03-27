@@ -5,7 +5,7 @@ import type { CollectionConfig } from "payload";
 
 const uploadDir =
   process.env.NODE_ENV === "production"
-    ? path.join("/tmp", "media")
+    ? "/tmp"
     : "media";
 
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
@@ -42,7 +42,7 @@ const resolveUploadedFilePath = (filename: string): string | null => {
     path.join(uploadDir, filename),
     path.resolve(process.cwd(), uploadDir, filename),
     path.resolve(process.cwd(), "media", filename),
-    path.join("/tmp", "media", filename),
+    path.join("/tmp", filename),
   ];
 
   for (const candidate of candidates) {
