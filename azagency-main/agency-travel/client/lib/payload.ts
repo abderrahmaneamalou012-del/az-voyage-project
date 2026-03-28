@@ -230,7 +230,12 @@ export async function fetchGlobal<T>(
   globalSlug: string,
   params?: Record<string, string | number | boolean>,
 ): Promise<T> {
-  const res = await cmsFetch(buildCMSApiUrl(`/globals/${globalSlug}`, params));
+  const res = await cmsFetch(
+    buildCMSApiUrl(`/globals/${globalSlug}`, {
+      depth: 2,
+      ...params,
+    }),
+  );
   if (!res.ok) throw new Error(`CMS fetch error: ${res.status} ${res.statusText}`);
   return res.json();
 }
@@ -239,7 +244,12 @@ export async function fetchCollection<T>(
   collection: string,
   params?: Record<string, string | number | boolean>,
 ): Promise<PayloadListResponse<T>> {
-  const res = await cmsFetch(buildCMSApiUrl(`/${collection}`, params));
+  const res = await cmsFetch(
+    buildCMSApiUrl(`/${collection}`, {
+      depth: 2,
+      ...params,
+    }),
+  );
   if (!res.ok) throw new Error(`CMS fetch error: ${res.status} ${res.statusText}`);
   return res.json();
 }
@@ -248,7 +258,11 @@ export async function fetchDocument<T>(
   collection: string,
   id: string,
 ): Promise<T> {
-  const res = await cmsFetch(buildCMSApiUrl(`/${collection}/${id}`));
+  const res = await cmsFetch(
+    buildCMSApiUrl(`/${collection}/${id}`, {
+      depth: 2,
+    }),
+  );
   if (!res.ok) throw new Error(`CMS fetch error: ${res.status} ${res.statusText}`);
   return res.json();
 }
@@ -270,7 +284,6 @@ export async function fetchByField<T>(
   return data.docs[0] ?? null;
 }
 
-/* ✅ FIXED FUNCTION */
 export function resolveImageUrl(
   uploadField?: string | { url?: string; cloudinaryUrl?: string } | null,
   fallbackUrl?: string,
@@ -279,12 +292,10 @@ export function resolveImageUrl(
     return fallbackUrl || "";
   }
 
-  // ✅ FIRST: use Cloudinary URL
   if (uploadField?.cloudinaryUrl) {
     return uploadField.cloudinaryUrl;
   }
 
-  // fallback to Payload URL
   if (uploadField?.url) {
     return uploadField.url.startsWith("http")
       ? uploadField.url
@@ -297,9 +308,13 @@ export function resolveImageUrl(
 }
 
 export function resolveGalleryUrls(
-  items?: Array<{ image?: string | { url?: string; cloudinaryUrl?: string } | null; imageUrl?: string }>,
+  items?: Array<{
+    image?: string | { url?: string; cloudinaryUrl?: string } | null;
+    imageUrl?: string;
+  }>,
 ): string[] {
   if (!items) return [];
+
   return items
     .map((item) => resolveImageUrl(item.image, item.imageUrl))
     .filter(Boolean);
